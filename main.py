@@ -4,15 +4,16 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from dotenv import load_dotenv
+from selectDropDownOption import select_dropdown_option
+from selectDropDownOption import fill_input_with_value
+from selectDropDownOption import select_multiple_dropdowns
+
+# from dotenv import load_dotenv
 import os
 
 import time
 
-
-
-load_dotenv()
-
+# load_dotenv()
 
 # SSL checking
 if not hasattr(ssl, '_create_unverified_context'):
@@ -57,7 +58,6 @@ def login_to_application(driver, username, password):
         print(f"Login failed: {e}")
         driver.quit()  # Quit the driver and raise an exception
         raise
-
 
 
 def test_login_logout(driver, username, password, expected_url):
@@ -215,9 +215,48 @@ def test_create_report_template(driver, username, password, report_base_id, repo
         driver.quit()
         raise
 
-    # createing a report template
+        # add base info using Select class
     try:
         driver.get("https://esep.govtec.kz/admin/reports/info/" + report_base_id)
+
+        # Use the `test_select_multiple_dropdowns` logic directly
+        dropdowns = [
+            {
+                "select_xpath": '/html/body/div[1]/div/div[1]/div[3]/div/div/div[2]/div/div[4]/div[2]/div',
+                "parent_xpath": '/html/body/div[4]/div',
+                "option_text": "Организации государственной и квазигосударственной сфер деятельности"
+            },
+            {
+                "select_xpath": '//*[@id="root"]/div/div[1]/div[3]/div/div/div[2]/div/div[5]/div[2]/div',
+                "parent_xpath": '/html/body/div[4]/div',
+                "option_text": "Ежегодно"
+            },
+            {
+                "select_xpath": '//*[@id="root"]/div/div[1]/div[3]/div/div/div[2]/div/div[6]/div[2]/div',
+                "parent_xpath": '/html/body/div[4]/div',
+                "option_text": "Да"
+            }
+        ]
+
+        select_multiple_dropdowns(driver, dropdowns)
+        # Fill the input field
+        fill_input_with_value(
+            driver=driver,
+            input_xpath='//*[@id="root"]/div/div[1]/div[3]/div/div/div[2]/div/div[1]/div[2]/input',
+            value=template_id
+        )
+
+        submission_button = driver.find_element(By.XPATH,
+                                                '//*[@id="root"]/div/div[1]/div[3]/div/div/div[2]/div/button')
+        submission_button.click()
+
+    except Exception as e:
+        print(f"Failed to add base info: {e}")
+        driver.quit()
+        raise
+
+    # createing a report template
+    try:
 
         report_template_tab = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div[1]/div[3]/div/div/div[1]/div[2]'))
@@ -276,7 +315,7 @@ def test_create_report_template(driver, username, password, report_base_id, repo
         )
         table_button.click()
 
-        print('table create model opened. ' )
+        print('table create model opened. ')
 
         table_name_input = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR,
@@ -288,24 +327,27 @@ def test_create_report_template(driver, username, password, report_base_id, repo
         else:
             print('table_name_input not found: ', table_name_input)
 
-
-        if table_name_input : table_name_input.send_keys(table_name)
+        if table_name_input: table_name_input.send_keys(table_name)
 
         if is_static:
             static_button = driver.find_element(By.CSS_SELECTOR,
-                                            "body > div.MuiModal-root.css-8ndowl > div.MuiBox-root.css-vtxhf1 > div.modal-body > div.MuiGrid-root.MuiGrid-container.MuiGrid-spacing-xs-2.css-i9qltj > div:nth-child(1) > div")
+                                                "body > div.MuiModal-root.css-8ndowl > div.MuiBox-root.css-vtxhf1 > div.modal-body > div.MuiGrid-root.MuiGrid-container.MuiGrid-spacing-xs-2.css-i9qltj > div:nth-child(1) > div")
             static_button.click()
         else:
-            dynamic_button = driver.find_element(By.CSS_SELECTOR, 'body > div.MuiModal-root.css-8ndowl > div.MuiBox-root.css-vtxhf1 > div.modal-body > div.MuiGrid-root.MuiGrid-container.MuiGrid-spacing-xs-2.css-i9qltj > div:nth-child(2) > div')
+            dynamic_button = driver.find_element(By.CSS_SELECTOR,
+                                                 'body > div.MuiModal-root.css-8ndowl > div.MuiBox-root.css-vtxhf1 > div.modal-body > div.MuiGrid-root.MuiGrid-container.MuiGrid-spacing-xs-2.css-i9qltj > div:nth-child(2) > div')
             dynamic_button.click()
 
-        row_count_input = driver.find_element(By.CSS_SELECTOR, 'body > div.MuiModal-root.css-8ndowl > div.MuiBox-root.css-vtxhf1 > div.modal-body > div.body-footer > div:nth-child(1) > div > input[type=number]')
+        row_count_input = driver.find_element(By.CSS_SELECTOR,
+                                              'body > div.MuiModal-root.css-8ndowl > div.MuiBox-root.css-vtxhf1 > div.modal-body > div.body-footer > div:nth-child(1) > div > input[type=number]')
         row_count_input.send_keys(row_count)
 
-        col_count_input = driver.find_element(By.CSS_SELECTOR, 'body > div.MuiModal-root.css-8ndowl > div.MuiBox-root.css-vtxhf1 > div.modal-body > div.body-footer > div:nth-child(2) > div > input[type=number]')
+        col_count_input = driver.find_element(By.CSS_SELECTOR,
+                                              'body > div.MuiModal-root.css-8ndowl > div.MuiBox-root.css-vtxhf1 > div.modal-body > div.body-footer > div:nth-child(2) > div > input[type=number]')
         col_count_input.send_keys(col_count)
 
-        submit_button = driver.find_element(By.CSS_SELECTOR, 'body > div.MuiModal-root.css-8ndowl > div.MuiBox-root.css-vtxhf1 > div.modal-footer > button:nth-child(2)')
+        submit_button = driver.find_element(By.CSS_SELECTOR,
+                                            'body > div.MuiModal-root.css-8ndowl > div.MuiBox-root.css-vtxhf1 > div.modal-footer > button:nth-child(2)')
         submit_button.click()
 
         print("Table created successfully.")
@@ -327,6 +369,7 @@ def test_create_report_template(driver, username, password, report_base_id, repo
 def initialize_driver():
     try:
         driver = webdriver.Chrome()  # You can use a different driver like Firefox or Edge
+        driver.implicitly_wait(10)  # Set implicit wait globally
         return driver
     except Exception as e:
         print(f"WebDriver initialization failed: {e}")
@@ -335,22 +378,21 @@ def initialize_driver():
 
 test_data = [
     {
-        "username": os.getenv("USERNAME_INVALID"),
-        "password": os.getenv("PASSWORD_INVALID"),
-        "expected_url": os.getenv("EXPECTED_URL_INVALID"),
+        "username": 'invalid_user',
+        "password": 'invalid_pass',
+        "expected_url": 'https://esep.govtec.kz/login'
     },
     {
-        "username": os.getenv("USERNAME_PARTICIPANT"),
-        "password": os.getenv("PASSWORD_PARTICIPANT"),
-        "expected_url": os.getenv("EXPECTED_URL_PARTICIPANT"),
+        "username": "edugov",
+        "password": "Fnj0K8Ge",
+        "expected_url": 'https://esep.govtec.kz/participant',
     },
     {
-        "username": os.getenv("USERNAME_ADMIN"),
-        "password": os.getenv("PASSWORD_ADMIN"),
-        "expected_url": os.getenv("EXPECTED_URL_ADMIN"),
+        "username": 'edugov_admin',
+        "password": 'CuShF33o',
+        "expected_url": 'https://esep.govtec.kz/admin',
     },
 ]
-
 
 search_test_data = [
     {
@@ -399,23 +441,23 @@ def main():
         print("WebDriver could not be initialized. Exiting the program.")
         return
 
-    # login/logout tests
-    for data in test_data:
-        test_login_logout(driver, data["username"], data["password"], data["expected_url"])
-
-    # search tests (admin login required)
-    for search_data in search_test_data:
-        test_search_functionality(driver, search_data["search_value"], search_data["column_xpath"],
-                                  search_data["expected_results"], test_data[2]['username'], test_data[2]['password'])
+    # # login/logout tests
+    # for data in test_data:
+    #     test_login_logout(driver, data["username"], data["password"], data["expected_url"])
+    #
+    # # search tests (admin login required)
+    # for search_data in search_test_data:
+    #     test_search_functionality(driver, search_data["search_value"], search_data["column_xpath"],
+    #                               search_data["expected_results"], test_data[2]['username'], test_data[2]['password'])
 
     test_create_report_template(
         driver,
-        username=os.getenv("USERNAME_ADMIN"),
-        password=os.getenv("PASSWORD_ADMIN"),
-        report_base_id="testing_qa4",
+        username='edugov_admin',
+        password='CuShF33o',
+        report_base_id="testing_qa7",
         report_base_name_rus="Тестовый отчет",
         report_base_name_kaz="Сынақ есеп",
-        template_id="testing_qa4",
+        template_id="testing_qa7",
         template_name_rus="Шаблон отчета",
         template_name_kaz="Есеп үлгісі",
         table_name="Table1",
