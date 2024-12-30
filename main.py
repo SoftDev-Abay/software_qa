@@ -384,12 +384,12 @@ test_data = [
     },
     {
         "username": "edugov",
-        "password": "Fnj0K8Ge",
+        "password": "password",
         "expected_url": 'https://esep.govtec.kz/participant',
     },
     {
         "username": 'edugov_admin',
-        "password": 'CuShF33o',
+        "password": 'password',
         "expected_url": 'https://esep.govtec.kz/admin',
     },
 ]
@@ -453,7 +453,7 @@ def main():
     test_create_report_template(
         driver,
         username='edugov_admin',
-        password='CuShF33o',
+        password='password',
         report_base_id="testing_qa7",
         report_base_name_rus="Тестовый отчет",
         report_base_name_kaz="Сынақ есеп",
